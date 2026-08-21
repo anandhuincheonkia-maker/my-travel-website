@@ -1,0 +1,3162 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#02050b">
+<meta name="description" content="NASA inspired interactive mission control dashboard">
+
+<title>MISSION CONTROL // DEEP SPACE</title>
+
+<style>
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+:root{
+    --bg:#02050b;
+    --panel:#07111d;
+    --panel2:#0a1624;
+    --line:rgba(80,190,255,.22);
+    --blue:#43c8ff;
+    --cyan:#00f0ff;
+    --green:#48ff9b;
+    --yellow:#ffd166;
+    --red:#ff496c;
+    --white:#edf8ff;
+    --muted:#7d9caf;
+    --font:Arial,Helvetica,sans-serif;
+    --mono:"Courier New",monospace;
+}
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    background:#02050b;
+    color:var(--white);
+    font-family:var(--font);
+    overflow-x:hidden;
+}
+
+/* =========================================================
+   SPACE BACKGROUND
+========================================================= */
+
+.space-bg{
+    position:fixed;
+    inset:0;
+    z-index:-10;
+    background:
+        radial-gradient(circle at 20% 20%,rgba(0,100,255,.12),transparent 25%),
+        radial-gradient(circle at 80% 60%,rgba(120,0,255,.10),transparent 25%),
+        radial-gradient(circle at 50% 100%,rgba(0,220,255,.07),transparent 30%),
+        #02050b;
+}
+
+.stars,
+.stars2,
+.stars3{
+    position:fixed;
+    inset:0;
+    z-index:-9;
+    pointer-events:none;
+    background-repeat:repeat;
+}
+
+.stars{
+    background-image:
+        radial-gradient(1px 1px at 20px 30px,#fff,transparent),
+        radial-gradient(1px 1px at 90px 70px,#fff,transparent),
+        radial-gradient(1px 1px at 160px 120px,#fff,transparent),
+        radial-gradient(1px 1px at 240px 40px,#fff,transparent),
+        radial-gradient(1px 1px at 310px 180px,#fff,transparent);
+    background-size:350px 220px;
+    animation:starMove 90s linear infinite;
+    opacity:.65;
+}
+
+.stars2{
+    background-image:
+        radial-gradient(1px 1px at 40px 90px,#7de8ff,transparent),
+        radial-gradient(2px 2px at 200px 40px,#fff,transparent),
+        radial-gradient(1px 1px at 300px 150px,#fff,transparent);
+    background-size:500px 350px;
+    animation:starMove 140s linear infinite reverse;
+    opacity:.45;
+}
+
+.stars3{
+    background-image:
+        radial-gradient(1px 1px at 100px 100px,#fff,transparent),
+        radial-gradient(1px 1px at 400px 300px,#bdefff,transparent);
+    background-size:700px 500px;
+    animation:starMove 200s linear infinite;
+    opacity:.25;
+}
+
+@keyframes starMove{
+    from{transform:translateY(0)}
+    to{transform:translateY(700px)}
+}
+
+.shooting-star{
+    position:fixed;
+    width:120px;
+    height:2px;
+    background:linear-gradient(90deg,transparent,#fff,transparent);
+    transform:rotate(-35deg);
+    opacity:0;
+    z-index:-5;
+    animation:shoot 7s linear infinite;
+}
+
+.shooting-star:nth-child(1){
+    top:15%;
+    left:80%;
+}
+
+.shooting-star:nth-child(2){
+    top:55%;
+    left:20%;
+    animation-delay:3s;
+}
+
+@keyframes shoot{
+    0%,80%{
+        opacity:0;
+        transform:translate(0,0) rotate(-35deg);
+    }
+    85%{
+        opacity:1;
+    }
+    100%{
+        opacity:0;
+        transform:translate(-300px,200px) rotate(-35deg);
+    }
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+header{
+    height:72px;
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    z-index:1000;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 30px;
+    background:rgba(2,5,11,.85);
+    backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--line);
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-weight:bold;
+    letter-spacing:3px;
+}
+
+.logo-mark{
+    width:38px;
+    height:38px;
+    border:2px solid var(--blue);
+    border-radius:50%;
+    position:relative;
+    display:grid;
+    place-items:center;
+    color:var(--cyan);
+    box-shadow:0 0 20px rgba(0,220,255,.3);
+}
+
+.logo-mark::before{
+    content:"";
+    width:7px;
+    height:7px;
+    background:var(--cyan);
+    border-radius:50%;
+    box-shadow:0 0 12px var(--cyan);
+}
+
+.logo-text{
+    font-size:14px;
+}
+
+.logo-sub{
+    display:block;
+    font-size:8px;
+    color:var(--muted);
+    letter-spacing:2px;
+    margin-top:3px;
+}
+
+nav{
+    display:flex;
+    gap:6px;
+}
+
+nav a{
+    text-decoration:none;
+    color:#9db6c8;
+    font-size:11px;
+    padding:10px 12px;
+    border:1px solid transparent;
+    transition:.25s;
+}
+
+nav a:hover{
+    color:#fff;
+    border-color:var(--line);
+    background:rgba(50,180,255,.05);
+}
+
+.header-right{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.live{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font:11px var(--mono);
+    color:var(--green);
+}
+
+.live-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 12px var(--green);
+    animation:pulse 1.4s infinite;
+}
+
+@keyframes pulse{
+    50%{opacity:.3}
+}
+
+#clock{
+    font:11px var(--mono);
+    color:var(--muted);
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+main{
+    padding-top:72px;
+}
+
+section{
+    padding:85px 6vw;
+    position:relative;
+}
+
+.section-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:end;
+    margin-bottom:28px;
+}
+
+.eyebrow{
+    font:10px var(--mono);
+    color:var(--cyan);
+    letter-spacing:3px;
+    margin-bottom:8px;
+}
+
+.section-title{
+    font-size:clamp(25px,4vw,48px);
+    line-height:1;
+    letter-spacing:-1px;
+}
+
+.section-description{
+    color:var(--muted);
+    max-width:600px;
+    font-size:13px;
+    line-height:1.7;
+    margin-top:12px;
+}
+
+/* =========================================================
+   HERO SLIDER
+========================================================= */
+
+.hero{
+    min-height:calc(100vh - 72px);
+    padding:0;
+    display:flex;
+    align-items:center;
+    overflow:hidden;
+}
+
+.hero-slider{
+    width:100%;
+    height:calc(100vh - 72px);
+    position:relative;
+}
+
+.hero-slide{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    transform:scale(1.04);
+    transition:1s ease;
+    display:flex;
+    align-items:center;
+    padding:8vw;
+    overflow:hidden;
+}
+
+.hero-slide.active{
+    opacity:1;
+    transform:scale(1);
+}
+
+.hero-image{
+    position:absolute;
+    inset:0;
+    z-index:-2;
+    background-size:cover;
+    background-position:center;
+    filter:saturate(.9);
+}
+
+.hero-image::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+        linear-gradient(90deg,#02050b 0%,rgba(2,5,11,.82) 35%,rgba(2,5,11,.15) 75%,#02050b 100%),
+        linear-gradient(0deg,#02050b,transparent 40%,#02050b);
+}
+
+.hero-content{
+    max-width:720px;
+    z-index:2;
+}
+
+.hero-code{
+    font:11px var(--mono);
+    color:var(--green);
+    letter-spacing:3px;
+    margin-bottom:20px;
+}
+
+.hero h1{
+    font-size:clamp(48px,8vw,110px);
+    line-height:.88;
+    letter-spacing:-5px;
+    margin-bottom:25px;
+}
+
+.hero p{
+    max-width:600px;
+    color:#a9c0cf;
+    font-size:15px;
+    line-height:1.7;
+}
+
+.hero-buttons{
+    display:flex;
+    gap:12px;
+    margin-top:28px;
+}
+
+.btn{
+    border:1px solid var(--blue);
+    background:rgba(20,130,200,.1);
+    color:#fff;
+    padding:13px 20px;
+    font-size:10px;
+    letter-spacing:2px;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.btn:hover{
+    background:var(--blue);
+    color:#001018;
+    box-shadow:0 0 25px rgba(0,200,255,.3);
+}
+
+.btn.secondary{
+    border-color:rgba(255,255,255,.18);
+    background:rgba(255,255,255,.03);
+}
+
+.hero-controls{
+    position:absolute;
+    bottom:50px;
+    left:8vw;
+    right:8vw;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    z-index:10;
+}
+
+.slider-dots{
+    display:flex;
+    gap:8px;
+}
+
+.slider-dot{
+    width:35px;
+    height:3px;
+    background:rgba(255,255,255,.2);
+    cursor:pointer;
+}
+
+.slider-dot.active{
+    background:var(--cyan);
+    box-shadow:0 0 10px var(--cyan);
+}
+
+.slide-counter{
+    font:12px var(--mono);
+    color:var(--muted);
+}
+
+/* =========================================================
+   HUD
+========================================================= */
+
+.hud-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+}
+
+.hud-card{
+    background:rgba(5,15,25,.88);
+    padding:25px;
+    min-height:140px;
+    position:relative;
+    overflow:hidden;
+}
+
+.hud-card::after{
+    content:"";
+    position:absolute;
+    right:-20px;
+    bottom:-20px;
+    width:80px;
+    height:80px;
+    border:1px solid rgba(70,210,255,.15);
+    border-radius:50%;
+}
+
+.hud-label{
+    font:9px var(--mono);
+    color:var(--muted);
+    letter-spacing:2px;
+}
+
+.hud-value{
+    margin-top:15px;
+    font-size:30px;
+    font-family:var(--mono);
+    color:#fff;
+}
+
+.hud-status{
+    margin-top:10px;
+    font-size:10px;
+    color:var(--green);
+}
+
+.progress{
+    height:3px;
+    background:#102230;
+    margin-top:16px;
+}
+
+.progress span{
+    display:block;
+    height:100%;
+    background:var(--cyan);
+    box-shadow:0 0 10px var(--cyan);
+}
+
+/* =========================================================
+   COUNTDOWN
+========================================================= */
+
+.countdown-panel{
+    border:1px solid var(--line);
+    background:
+        linear-gradient(90deg,rgba(0,150,255,.08),transparent),
+        rgba(5,13,23,.9);
+    padding:45px;
+    position:relative;
+    overflow:hidden;
+}
+
+.countdown-panel::before{
+    content:"T-MINUS";
+    position:absolute;
+    right:30px;
+    top:25px;
+    color:rgba(255,255,255,.04);
+    font-size:80px;
+    font-weight:bold;
+}
+
+.countdown{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+    max-width:800px;
+}
+
+.time-box{
+    border-left:1px solid var(--line);
+    padding-left:20px;
+}
+
+.time-number{
+    font:clamp(30px,5vw,65px) var(--mono);
+    color:var(--cyan);
+    text-shadow:0 0 15px rgba(0,230,255,.3);
+}
+
+.time-label{
+    font:9px var(--mono);
+    color:var(--muted);
+    letter-spacing:2px;
+}
+
+/* =========================================================
+   MISSION SLIDER
+========================================================= */
+
+.slider-shell{
+    position:relative;
+    overflow:hidden;
+}
+
+.card-track{
+    display:flex;
+    gap:16px;
+    transition:transform .6s ease;
+}
+
+.mission-card{
+    flex:0 0 calc(25% - 12px);
+    min-height:320px;
+    border:1px solid var(--line);
+    background:#06101a;
+    cursor:pointer;
+    transition:.3s;
+    position:relative;
+    overflow:hidden;
+}
+
+.mission-card:hover{
+    transform:translateY(-7px);
+    border-color:var(--blue);
+    box-shadow:0 15px 40px rgba(0,0,0,.4);
+}
+
+.card-image{
+    height:170px;
+    background-size:cover;
+    background-position:center;
+    position:relative;
+}
+
+.card-image::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(transparent,rgba(2,5,11,.9));
+}
+
+.card-body{
+    padding:18px;
+}
+
+.card-tag{
+    font:9px var(--mono);
+    color:var(--cyan);
+    letter-spacing:2px;
+}
+
+.card-title{
+    margin-top:8px;
+    font-size:20px;
+}
+
+.card-text{
+    color:var(--muted);
+    font-size:11px;
+    line-height:1.6;
+    margin-top:8px;
+}
+
+.slider-buttons{
+    display:flex;
+    gap:8px;
+}
+
+.slider-btn{
+    width:40px;
+    height:40px;
+    background:#07131f;
+    color:#fff;
+    border:1px solid var(--line);
+    cursor:pointer;
+}
+
+.slider-btn:hover{
+    border-color:var(--cyan);
+    color:var(--cyan);
+}
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+.filter-bar{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:25px;
+}
+
+.filter{
+    padding:9px 14px;
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--muted);
+    cursor:pointer;
+    font:9px var(--mono);
+    letter-spacing:1px;
+}
+
+.filter.active,
+.filter:hover{
+    color:#fff;
+    border-color:var(--cyan);
+    background:rgba(0,200,255,.08);
+}
+
+.search{
+    width:100%;
+    padding:15px 18px;
+    margin-bottom:20px;
+    background:#050d15;
+    border:1px solid var(--line);
+    color:#fff;
+    outline:none;
+    font:12px var(--mono);
+}
+
+.search:focus{
+    border-color:var(--cyan);
+}
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+.event-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+}
+
+.event-card{
+    border:1px solid var(--line);
+    background:rgba(5,14,24,.85);
+    padding:22px;
+    transition:.3s;
+}
+
+.event-card:hover{
+    border-color:var(--blue);
+    transform:translateY(-4px);
+}
+
+.event-date{
+    color:var(--cyan);
+    font:11px var(--mono);
+}
+
+.event-title{
+    font-size:17px;
+    margin:12px 0;
+}
+
+.event-info{
+    color:var(--muted);
+    font-size:11px;
+    line-height:1.6;
+}
+
+.event-status{
+    display:inline-block;
+    margin-top:15px;
+    padding:5px 8px;
+    font:8px var(--mono);
+    border:1px solid rgba(72,255,155,.3);
+    color:var(--green);
+}
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+.timeline{
+    position:relative;
+    margin-top:40px;
+}
+
+.timeline::before{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:0;
+    bottom:0;
+    width:1px;
+    background:linear-gradient(var(--cyan),rgba(0,240,255,.05));
+}
+
+.timeline-item{
+    width:50%;
+    padding:20px 45px;
+    position:relative;
+}
+
+.timeline-item:nth-child(odd){
+    text-align:right;
+}
+
+.timeline-item:nth-child(even){
+    margin-left:50%;
+}
+
+.timeline-dot{
+    position:absolute;
+    top:27px;
+    width:11px;
+    height:11px;
+    border:2px solid var(--cyan);
+    background:#02050b;
+    border-radius:50%;
+    box-shadow:0 0 15px var(--cyan);
+}
+
+.timeline-item:nth-child(odd) .timeline-dot{
+    right:-6px;
+}
+
+.timeline-item:nth-child(even) .timeline-dot{
+    left:-6px;
+}
+
+.timeline-year{
+    color:var(--cyan);
+    font:10px var(--mono);
+}
+
+.timeline-title{
+    font-size:21px;
+    margin:7px 0;
+}
+
+.timeline-text{
+    color:var(--muted);
+    font-size:11px;
+    line-height:1.6;
+}
+
+/* =========================================================
+   PLANETS
+========================================================= */
+
+.planet-zone{
+    display:grid;
+    grid-template-columns:1fr 1.4fr;
+    gap:30px;
+    align-items:center;
+}
+
+.planet{
+    width:min(400px,80vw);
+    aspect-ratio:1;
+    border-radius:50%;
+    margin:auto;
+    position:relative;
+    background:
+        radial-gradient(circle at 35% 30%,#82cfff,#2672c4 25%,#102f62 55%,#030b19 75%);
+    box-shadow:
+        inset -35px -25px 60px rgba(0,0,0,.8),
+        0 0 70px rgba(30,140,255,.2);
+    transition:.6s;
+}
+
+.planet::before{
+    content:"";
+    position:absolute;
+    inset:-15%;
+    border:1px solid rgba(100,210,255,.2);
+    border-radius:50%;
+    transform:rotate(-20deg) scaleY(.3);
+}
+
+.planet-info h3{
+    font-size:50px;
+    margin-bottom:15px;
+}
+
+.planet-info p{
+    color:var(--muted);
+    line-height:1.8;
+    font-size:13px;
+}
+
+.planet-selector{
+    display:flex;
+    gap:8px;
+    margin-top:25px;
+    flex-wrap:wrap;
+}
+
+.planet-btn{
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--muted);
+    padding:10px 15px;
+    cursor:pointer;
+}
+
+.planet-btn.active{
+    color:var(--cyan);
+    border-color:var(--cyan);
+}
+
+/* =========================================================
+   TELEMETRY
+========================================================= */
+
+.telemetry{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.telemetry-panel{
+    border:1px solid var(--line);
+    background:#050d16;
+    padding:25px;
+}
+
+.telemetry-row{
+    display:grid;
+    grid-template-columns:160px 1fr 70px;
+    align-items:center;
+    gap:15px;
+    padding:13px 0;
+    border-bottom:1px solid rgba(255,255,255,.05);
+    font:10px var(--mono);
+}
+
+.telemetry-label{
+    color:var(--muted);
+}
+
+.bar{
+    height:4px;
+    background:#112231;
+}
+
+.bar span{
+    display:block;
+    height:100%;
+    background:var(--cyan);
+}
+
+.telemetry-value{
+    text-align:right;
+    color:var(--green);
+}
+
+/* =========================================================
+   GALLERY SLIDER
+========================================================= */
+
+.gallery{
+    display:grid;
+    grid-template-columns:1.6fr 1fr;
+    gap:15px;
+}
+
+.gallery-main{
+    height:500px;
+    background-size:cover;
+    background-position:center;
+    position:relative;
+    border:1px solid var(--line);
+}
+
+.gallery-caption{
+    position:absolute;
+    left:25px;
+    right:25px;
+    bottom:25px;
+}
+
+.gallery-caption h3{
+    font-size:30px;
+}
+
+.gallery-thumbs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.thumb{
+    min-height:120px;
+    background-size:cover;
+    background-position:center;
+    border:1px solid var(--line);
+    cursor:pointer;
+    opacity:.55;
+    transition:.25s;
+}
+
+.thumb:hover,
+.thumb.active{
+    opacity:1;
+    border-color:var(--cyan);
+}
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+.dashboard{
+    display:grid;
+    grid-template-columns:1.5fr 1fr 1fr;
+    gap:15px;
+}
+
+.dashboard-panel{
+    min-height:250px;
+    border:1px solid var(--line);
+    background:rgba(5,14,24,.9);
+    padding:25px;
+}
+
+.radar{
+    width:180px;
+    height:180px;
+    margin:20px auto;
+    border:1px solid rgba(0,240,255,.5);
+    border-radius:50%;
+    position:relative;
+    overflow:hidden;
+    background:
+        linear-gradient(rgba(0,240,255,.1) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(0,240,255,.1) 1px,transparent 1px);
+    background-size:45px 45px;
+}
+
+.radar::after{
+    content:"";
+    position:absolute;
+    width:50%;
+    height:2px;
+    top:50%;
+    left:50%;
+    transform-origin:left;
+    background:var(--green);
+    animation:radar 2s linear infinite;
+    box-shadow:0 0 12px var(--green);
+}
+
+@keyframes radar{
+    to{transform:rotate(360deg)}
+}
+
+.radar::before{
+    content:"";
+    position:absolute;
+    width:7px;
+    height:7px;
+    background:var(--red);
+    border-radius:50%;
+    left:65%;
+    top:28%;
+    box-shadow:0 0 10px var(--red);
+}
+
+.mini-list{
+    margin-top:15px;
+}
+
+.mini-list div{
+    display:flex;
+    justify-content:space-between;
+    padding:10px 0;
+    border-bottom:1px solid rgba(255,255,255,.05);
+    font-size:10px;
+}
+
+.ok{
+    color:var(--green);
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.8);
+    backdrop-filter:blur(10px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:2000;
+    padding:20px;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modal-box{
+    width:min(800px,100%);
+    max-height:90vh;
+    overflow:auto;
+    background:#06101a;
+    border:1px solid var(--cyan);
+    box-shadow:0 0 60px rgba(0,200,255,.15);
+    padding:35px;
+    position:relative;
+}
+
+.modal-close{
+    position:absolute;
+    top:15px;
+    right:15px;
+    background:transparent;
+    border:1px solid var(--line);
+    color:#fff;
+    width:35px;
+    height:35px;
+    cursor:pointer;
+}
+
+.modal h2{
+    font-size:42px;
+    margin:10px 0;
+}
+
+.modal p{
+    color:var(--muted);
+    line-height:1.8;
+    font-size:13px;
+}
+
+.modal-stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-top:25px;
+}
+
+.modal-stat{
+    border:1px solid var(--line);
+    padding:15px;
+}
+
+.modal-stat small{
+    display:block;
+    color:var(--muted);
+    font:8px var(--mono);
+}
+
+.modal-stat strong{
+    display:block;
+    margin-top:8px;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer{
+    border-top:1px solid var(--line);
+    padding:50px 6vw;
+    background:#02060c;
+}
+
+.footer-grid{
+    display:grid;
+    grid-template-columns:2fr 1fr 1fr 1fr;
+    gap:30px;
+}
+
+.footer-title{
+    font-size:20px;
+    margin-bottom:12px;
+}
+
+footer p,
+footer a{
+    color:var(--muted);
+    font-size:11px;
+    line-height:1.8;
+    text-decoration:none;
+}
+
+footer a:hover{
+    color:var(--cyan);
+}
+
+.copyright{
+    border-top:1px solid rgba(255,255,255,.05);
+    margin-top:40px;
+    padding-top:20px;
+    font:9px var(--mono);
+    color:#536a79;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1000px){
+
+    nav{
+        display:none;
+    }
+
+    .hud-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .mission-card{
+        flex-basis:calc(50% - 8px);
+    }
+
+    .event-grid{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .planet-zone{
+        grid-template-columns:1fr;
+    }
+
+    .dashboard{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .footer-grid{
+        grid-template-columns:1fr 1fr;
+    }
+}
+
+@media(max-width:650px){
+
+    header{
+        padding:0 15px;
+    }
+
+    section{
+        padding:60px 5vw;
+    }
+
+    .hero-slide{
+        padding:25px;
+    }
+
+    .hero h1{
+        font-size:55px;
+        letter-spacing:-3px;
+    }
+
+    .hero p{
+        font-size:12px;
+    }
+
+    .hud-grid{
+        grid-template-columns:1fr;
+    }
+
+    .countdown-panel{
+        padding:25px;
+    }
+
+    .countdown{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .mission-card{
+        flex-basis:85%;
+    }
+
+    .event-grid{
+        grid-template-columns:1fr;
+    }
+
+    .timeline::before{
+        left:8px;
+    }
+
+    .timeline-item,
+    .timeline-item:nth-child(even){
+        width:100%;
+        margin-left:0;
+        text-align:left;
+        padding-left:35px;
+        padding-right:0;
+    }
+
+    .timeline-item:nth-child(odd) .timeline-dot,
+    .timeline-item:nth-child(even) .timeline-dot{
+        left:3px;
+        right:auto;
+    }
+
+    .telemetry{
+        grid-template-columns:1fr;
+    }
+
+    .gallery{
+        grid-template-columns:1fr;
+    }
+
+    .gallery-main{
+        height:350px;
+    }
+
+    .dashboard{
+        grid-template-columns:1fr;
+    }
+
+    .footer-grid{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- BACKGROUND -->
+<div class="space-bg"></div>
+<div class="stars"></div>
+<div class="stars2"></div>
+<div class="stars3"></div>
+<div class="shooting-star"></div>
+<div class="shooting-star"></div>
+
+<!-- ======================================================
+     HEADER
+======================================================= -->
+
+<header>
+
+    <div class="logo">
+
+        <div class="logo-mark"></div>
+
+        <div>
+            <div class="logo-text">MISSION CONTROL</div>
+            <span class="logo-sub">DEEP SPACE OPERATIONS</span>
+        </div>
+
+    </div>
+
+    <nav>
+        <a href="#missions">MISSIONS</a>
+        <a href="#events">EVENTS</a>
+        <a href="#timeline">TIMELINE</a>
+        <a href="#solar">SOLAR SYSTEM</a>
+        <a href="#telemetry">TELEMETRY</a>
+        <a href="#gallery">GALLERY</a>
+    </nav>
+
+    <div class="header-right">
+
+        <div class="live">
+            <span class="live-dot"></span>
+            SYSTEM ONLINE
+        </div>
+
+        <div id="clock">00:00:00 UTC</div>
+
+    </div>
+
+</header>
+
+<main>
+
+<!-- ======================================================
+     HERO SLIDER
+======================================================= -->
+
+<section class="hero">
+
+<div class="hero-slider">
+
+    <div class="hero-slide active">
+
+        <div class="hero-image"
+             style="background-image:url('https://images-assets.nasa.gov/image/iss069e001034/iss069e001034~large.jpg')">
+        </div>
+
+        <div class="hero-content">
+
+            <div class="hero-code">MISSION 001 // HUMAN SPACEFLIGHT</div>
+
+            <h1>BEYOND<br>EARTH</h1>
+
+            <p>
+                Explore humanity's missions beyond our home planet.
+                Monitor spacecraft, discoveries, launch events and
+                deep-space exploration from one interactive command interface.
+            </p>
+
+            <div class="hero-buttons">
+                <button class="btn" onclick="scrollToSection('missions')">
+                    EXPLORE MISSIONS
+                </button>
+
+                <button class="btn secondary" onclick="scrollToSection('dashboard')">
+                    OPEN CONTROL
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="hero-slide">
+
+        <div class="hero-image"
+             style="background-image:url('https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e001242/GSFC_20171208_Archive_e001242~large.jpg')">
+        </div>
+
+        <div class="hero-content">
+
+            <div class="hero-code">MISSION 002 // ASTROPHYSICS</div>
+
+            <h1>SEE<br>DEEPER</h1>
+
+            <p>
+                Telescopes such as Webb and Hubble allow scientists
+                to investigate stars, galaxies, planets and the history
+                of the universe.
+            </p>
+
+            <div class="hero-buttons">
+                <button class="btn" onclick="openMission('James Webb Space Telescope')">
+                    WEBB MISSION
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="hero-slide">
+
+        <div class="hero-image"
+             style="background-image:url('https://images-assets.nasa.gov/image/AFRC2025-0149-0012/AFRC2025-0149-0012~large.jpg')">
+        </div>
+
+        <div class="hero-content">
+
+            <div class="hero-code">MISSION 003 // LUNAR EXPLORATION</div>
+
+            <h1>RETURN<br>TO THE MOON</h1>
+
+            <p>
+                Artemis is building a sustained human presence on and
+                around the Moon while preparing technologies and
+                experience for future missions to Mars.
+            </p>
+
+            <div class="hero-buttons">
+                <button class="btn" onclick="scrollToSection('events')">
+                    VIEW ARTEMIS
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="hero-slide">
+
+        <div class="hero-image"
+             style="background-image:url('https://images-assets.nasa.gov/image/PIA26469/PIA26469~large.jpg')">
+        </div>
+
+        <div class="hero-content">
+
+            <div class="hero-code">MISSION 004 // MARS EXPLORATION</div>
+
+            <h1>RED<br>PLANET</h1>
+
+            <p>
+                Robotic explorers continue investigating the Martian
+                surface, collecting scientific evidence and searching
+                for clues about the planet's ancient environment.
+            </p>
+
+            <div class="hero-buttons">
+                <button class="btn" onclick="openMission('Mars Perseverance')">
+                    MARS MISSION
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="hero-controls">
+
+        <div class="slider-dots">
+
+            <div class="slider-dot active" onclick="heroGo(0)"></div>
+            <div class="slider-dot" onclick="heroGo(1)"></div>
+            <div class="slider-dot" onclick="heroGo(2)"></div>
+            <div class="slider-dot" onclick="heroGo(3)"></div>
+
+        </div>
+
+        <div class="slide-counter">
+            <span id="heroCounter">01</span> / 04
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- ======================================================
+     SYSTEM STATUS
+======================================================= -->
+
+<section id="dashboard">
+
+<div class="section-header">
+
+    <div>
+        <div class="eyebrow">01 // SYSTEM STATUS</div>
+        <h2 class="section-title">MISSION DASHBOARD</h2>
+        <p class="section-description">
+            Simulated mission-control telemetry interface.
+            Values update automatically for demonstration.
+        </p>
+    </div>
+
+</div>
+
+<div class="hud-grid">
+
+    <div class="hud-card">
+        <div class="hud-label">ACTIVE MISSIONS</div>
+        <div class="hud-value" id="activeMissions">47</div>
+        <div class="hud-status">? NOMINAL</div>
+        <div class="progress"><span style="width:82%"></span></div>
+    </div>
+
+    <div class="hud-card">
+        <div class="hud-label">SPACECRAFT ONLINE</div>
+        <div class="hud-value" id="spacecraft">128</div>
+        <div class="hud-status">? NETWORK STABLE</div>
+        <div class="progress"><span style="width:91%"></span></div>
+    </div>
+
+    <div class="hud-card">
+        <div class="hud-label">DATA RECEIVED</div>
+        <div class="hud-value" id="data">7.82</div>
+        <div class="hud-status">TB / DAY</div>
+        <div class="progress"><span style="width:67%"></span></div>
+    </div>
+
+    <div class="hud-card">
+        <div class="hud-label">DEEP SPACE LINK</div>
+        <div class="hud-value">98.7%</div>
+        <div class="hud-status">? CONNECTED</div>
+        <div class="progress"><span style="width:98%"></span></div>
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- ======================================================
+     COUNTDOWN
+======================================================= -->
+
+<section>
+
+<div class="countdown-panel">
+
+    <div class="eyebrow">02 // NEXT MAJOR EVENT</div>
+
+    <h2 class="section-title">MISSION COUNTDOWN</h2>
+
+    <p class="section-description">
+        Demonstration countdown. Change the target date in the
+        JavaScript section to use your own event.
+    </p>
+
+    <br>
+
+    <div class="countdown">
+
+        <div class="time-box">
+            <div class="time-number" id="days">000</div>
+            <div class="time-label">DAYS</div>
+        </div>
+
+        <div class="time-box">
+            <div class="time-number" id="hours">00</div>
+            <div class="time-label">HOURS</div>
+        </div>
+
+        <div class="time-box">
+            <div class="time-number" id="minutes">00</div>
+            <div class="time-label">MINUTES</div>
+        </div>
+
+        <div class="time-box">
+            <div class="time-number" id="seconds">00</div>
+            <div class="time-label">SECONDS</div>
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- ======================================================
+     MISSIONS
+======================================================= -->
+
+<section id="missions">
+
+<div class="section-header">
+
+    <div>
+        <div class="eyebrow">03 // MISSION DATABASE</div>
+        <h2 class="section-title">EXPLORE MISSIONS</h2>
+        <p class="section-description">
+            Search and filter the mission catalogue.
+        </p>
+    </div>
+
+</div>
+
+<input
+    class="search"
+    id="missionSearch"
+    type="text"
+    placeholder="SEARCH MISSION DATABASE..."
+    oninput="searchMissions()"
+>
+
+<div class="filter-bar">
+
+    <button class="filter active" onclick="filterMissions('all',this)">ALL</button>
+    <button class="filter" onclick="filterMissions('moon',this)">MOON</button>
+    <button class="filter" onclick="filterMissions('mars',this)">MARS</button>
+    <button class="filter" onclick="filterMissions('science',this)">SCIENCE</button>
+    <button class="filter" onclick="filterMissions('deep',this)">DEEP SPACE</button>
+    <button class="filter" onclick="filterMissions('earth',this)">EARTH</button>
+
+</div>
+
+<div class="slider-shell">
+
+<div class="card-track" id="missionTrack">
+
+<!-- 01 -->
+
+<div class="mission-card" data-category="moon"
+     onclick="openMission('Artemis I')">
+
+    <div class="card-image"
+         style="background-image:url('https://images-assets.nasa.gov/image/AFRC2025-0149-0012/AFRC2025-0149-0012~large.jpg')"></div>
+
+    <div class="card-body">
+        <div class="card-tag">LUNAR // COMPLETED</div>
+        <div class="card-title">Artemis I</div>
+        <div class="card-text">
+            Uncrewed flight test of Orion and SLS around the Moon.
+        </div>
+    </div>
+
+</div>
+
+<!-- 02 -->
+
+<div class="mission-card" data-category="moon"
+     onclick="openMission('Artemis II')">
+
+    <div class="card-image"
+         style="background-image:url('https://images-assets.nasa.gov/image/AFRC2025-0149-0012/AFRC2025-0149-0012~large.jpg')"></div>
+
+    <div class="card-body">
+        <div class="card-tag">LUNAR // CREWED</div>
+        <div class="card-title">Artemis II</div>
+        <div class="card-text">
+            Crewed lunar mission establishing the next phase of Artemis exploration.
+        </div>
+    </div>
+
+</div>
+
+<!-- 03 -->
+
+<div class="mission-card" data-category="moon"
+     onclick="openMission('Artemis III')">
+
+    <div class="card-image"
+         style="background-image:url('https://images-assets.nasa.gov/image/iss069e001034/iss069e001034~large.jpg')"></div>
+
+    <div class="card-body">
+        <div class="card-tag">LUNAR // FUTURE</div>
+        <div class="card-title">Artemis III</div>
+        <div class="card-text">
+            Planned lunar surface demonstration mission.
+        </div>
+    </div>
+
+</div>
+
+<!-- 04 -->
+
+<div class="mission-card" data-category="moon"
+     onclick="openMission('Artemis IV')">
+
+    <div class="card-image"
+         style="background-image:url('https://images-assets.nasa.gov/image/AFRC2025-0149-0012/AFRC2025-0149-0012~large.jpg')"></div>
+
+    <div class="card-body">
+        <div class="card-tag">LUNAR // FUTURE</div>
+        <div class="card-title">Artemis IV</div>
+        <div class="card-text">
+            Future lunar mission supporting sustained exploration.
+        </div>
+    </div>
+
+</div>
+
+<!-- 05 -->
+
+<div class="mission-card" data-category="science"
+     onclick="openMission('James Webb Space Telescope')">
+
+    <div class="card-image"
+         style="background-image:url('https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e001242/GSFC_20171208_Archive_e001242~large.jpg')"></div>
+
+    <div class="card-body">
+        <div class="card-tag">ASTROPHYSICS // ACTIVE</div>
+        <div class="card-title">James Webb</div>
+        <div class="card-text">
+            Infrared observatory studying the universe across cosmic history.
+        </div>
+    </div>
+
+</div>
+
+<!-- 06 -->
+
+<div class="mission-card" data-category="science"
+     onclick="openMission('Hubble Space Telescope')">
+
+    <div class="card-image"
+         style="background-image:url('https://images-assets.nasa.gov/image/STS103-715-088/STS103-715-088~large.jpg')"></div>
+
+    <div class="card-body">
+        <div class="card-tag">ASTROPHYSICS // ACTIVE</div>
+        <div class="card-title">Hubble</div>
+        <div class="card-text">
+            Space telescope that transformed our understanding of the universe.
+        </div>
+    </div>
+
+</div>
+
+<!-- 07 -->
+
+<div class="mission-card" data-category="mars"
+     onclick="openMission('Mars Perseverance')">
+
+    <div class="card-image"
+         style="background-image:url('https://images-assets.nasa.gov/image/PIA26469/PIA26469~large.jpg')"></div>
+
+    <div class="card-body">
+        <div class="card-tag">MARS // ACTIVE</div>
+        <div class="card-title">Perseverance</div>
+        <div class="card-text">
+            Mars rover collecting rock and regolith samples.
+        </div>
+    </div>
+
+</div>
+
+<!-- 08 -->
+
+<div class="mission-card" data-category="mars"
+     onclick="openMission('Curiosity')">
+
+    <div class="card-image"
+         style="background-image:url('https://images-assets.nasa.gov/image/PIA24431/PIA24431~large.jpg')"></div>
+
+    <div class="card-body">
+        <div class="card-tag">MARS // ACTIVE</div>
+        <div class="card-title">Curiosity</div>
+        <div class="card-text">
+            Robotic laboratory investigating ancient Martian environments.
+        </div>
+    </div>
+
+</div>
+
+<!-- 09 -->
+
+<div class="mission-card" data-category="deep"
+     onclick="openMission('Voyager')">
+
+    <div class="card-image"
+         style="background-image:url('https://images-assets.nasa.gov/image/PIA17046/PIA17046~large.jpg')"></div>
+
+    <div class="card-body">
+        <div class="card-tag">DEEP SPACE // INTERSTELLAR</div>
+        <div class="card-title">Voyager</div>
+        <div class="card-text">
+            Humanity's pioneering spacecraft exploring beyond the heliosphere.
+        </div>
+    </div>
+
+</div>
+
+<!-- 10 -->
+
+<div class="mission-card" data-category="deep"
+     onclick="openMission('Europa Clipper')">
+
+    <div class="card-image"
+         style="background-image:url('https://images-assets.nasa.gov/image/PIA26014/PIA26014~large.jpg')"></div>
+
+    <div class="card-body">
+        <div class="card-tag">JUPITER // ACTIVE</div>
+        <div class="card-title">Europa Clipper</div>
+        <div class="card-text">
+            Detailed investigation of Jupiter's ocean-bearing moon Europa.
+        </div>
+    </div>
+
+</div>
+
+<!-- 11 -->
+
+<div class="mission-card" data-category="deep"
+     onclick="openMission('OSIRIS-APEX')">
+
+    <div class="card-image"
+         style="background-image:url('https://images-assets.nasa.gov/image/PIA22590/PIA22590~large.jpg')"></div>
+
+    <div class="card-body">
+        <div class="card-tag">ASTEROID // ACTIVE</div>
+        <div class="card-title">OSIRIS-APEX</div>
+        <div class="card-text">
+            Follow-on mission studying asteroid Apophis.
+        </div>
+    </div>
+
+</div>
+
+<!-- 12 -->
+
+<div class="mission-card" data-category="deep"
+     onclick="openMission('Parker Solar Probe')">
+
+    <div class="card-image"
+         style="background-image:url('https://images-assets.nasa.gov/image/PIA25997/PIA25997~large.jpg')"></div>
+
+    <div class="card-body">
+        <div class="card-tag">SUN // HELIOPHYSICS</div>
+        <div class="card-title">Parker Solar Probe</div>
+        <div class="card-text">
+            Studies the Sun's outer atmosphere and solar wind.
+        </div>
+    </div>
+
+</div>
+
+</div>
+
+<br>
+
+<div class="slider-buttons">
+
+    <button class="slider-btn" onclick="moveMissionSlider(-1)">?</button>
+    <button class="slider-btn" onclick="moveMissionSlider(1)">?</button>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ======================================================
+     EVENTS
+======================================================= -->
+
+<section id="events">
+
+<div class="section-header">
+
+    <div>
+        <div class="eyebrow">04 // MISSION CALENDAR</div>
+        <h2 class="section-title">SPACE EVENTS</h2>
+        <p class="section-description">
+            Demonstration event database. Replace dates with your own
+            live launch/event feed if desired.
+        </p>
+    </div>
+
+</div>
+
+<div class="event-grid">
+
+<div class="event-card">
+    <div class="event-date">01 // APR 2026</div>
+    <div class="event-title">ARTEMIS II</div>
+    <div class="event-info">Crewed lunar exploration milestone.</div>
+    <div class="event-status">MISSION EVENT</div>
+</div>
+
+<div class="event-card">
+    <div class="event-date">2027</div>
+    <div class="event-title">ARTEMIS III</div>
+    <div class="event-info">Planned lunar surface mission.</div>
+    <div class="event-status">FUTURE</div>
+</div>
+
+<div class="event-card">
+    <div class="event-date">EARLY 2028</div>
+    <div class="event-title">ARTEMIS IV</div>
+    <div class="event-info">Future crewed lunar mission.</div>
+    <div class="event-status">PLANNED</div>
+</div>
+
+<div class="event-card">
+    <div class="event-date">2030</div>
+    <div class="event-title">EUROPA CLIPPER</div>
+    <div class="event-info">Europa science operations around Jupiter.</div>
+    <div class="event-status">UPCOMING</div>
+</div>
+
+<div class="event-card">
+    <div class="event-date">2029</div>
+    <div class="event-title">APOPHIS ENCOUNTER</div>
+    <div class="event-info">OSIRIS-APEX science campaign around asteroid Apophis.</div>
+    <div class="event-status">UPCOMING</div>
+</div>
+
+<div class="event-card">
+    <div class="event-date">ONGOING</div>
+    <div class="event-title">WEBB SCIENCE</div>
+    <div class="event-info">Continuous observations of the universe.</div>
+    <div class="event-status">ACTIVE</div>
+</div>
+
+<div class="event-card">
+    <div class="event-date">ONGOING</div>
+    <div class="event-title">HUBBLE SCIENCE</div>
+    <div class="event-info">Long-running astronomical observations.</div>
+    <div class="event-status">ACTIVE</div>
+</div>
+
+<div class="event-card">
+    <div class="event-date">ONGOING</div>
+    <div class="event-title">MARS OPERATIONS</div>
+    <div class="event-info">Surface exploration by robotic spacecraft.</div>
+    <div class="event-status">ACTIVE</div>
+</div>
+
+<div class="event-card">
+    <div class="event-date">ONGOING</div>
+    <div class="event-title">VOYAGER</div>
+    <div class="event-info">Interstellar mission operations.</div>
+    <div class="event-status">ACTIVE</div>
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ======================================================
+     TIMELINE
+======================================================= -->
+
+<section id="timeline">
+
+<div class="section-header">
+
+    <div>
+        <div class="eyebrow">05 // EXPLORATION HISTORY</div>
+        <h2 class="section-title">MISSION TIMELINE</h2>
+    </div>
+
+</div>
+
+<div class="timeline">
+
+<div class="timeline-item">
+    <div class="timeline-dot"></div>
+    <div class="timeline-year">1969</div>
+    <div class="timeline-title">APOLLO 11</div>
+    <div class="timeline-text">
+        Humans reached the lunar surface and returned safely to Earth.
+    </div>
+</div>
+
+<div class="timeline-item">
+    <div class="timeline-dot"></div>
+    <div class="timeline-year">1977</div>
+    <div class="timeline-title">VOYAGER</div>
+    <div class="timeline-text">
+        Voyager spacecraft began journeys that would carry them into the outer solar system and beyond.
+    </div>
+</div>
+
+<div class="timeline-item">
+    <div class="timeline-dot"></div>
+    <div class="timeline-year">1990</div>
+    <div class="timeline-title">HUBBLE</div>
+    <div class="timeline-text">
+        The Hubble Space Telescope began its groundbreaking scientific mission.
+    </div>
+</div>
+
+<div class="timeline-item">
+    <div class="timeline-dot"></div>
+    <div class="timeline-year">2021</div>
+    <div class="timeline-title">JAMES WEBB</div>
+    <div class="timeline-text">
+        Webb launched and began a new era of infrared astronomy.
+    </div>
+</div>
+
+<div class="timeline-item">
+    <div class="timeline-dot"></div>
+    <div class="timeline-year">2022</div>
+    <div class="timeline-title">ARTEMIS I</div>
+    <div class="timeline-text">
+        Orion completed its first mission around the Moon as part of Artemis.
+    </div>
+</div>
+
+<div class="timeline-item">
+    <div class="timeline-dot"></div>
+    <div class="timeline-year">2026+</div>
+    <div class="timeline-title">LUNAR FUTURE</div>
+    <div class="timeline-text">
+        Artemis continues building the foundation for sustained lunar exploration and future Mars missions.
+    </div>
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ======================================================
+     SOLAR SYSTEM
+======================================================= -->
+
+<section id="solar">
+
+<div class="section-header">
+
+    <div>
+        <div class="eyebrow">06 // CELESTIAL NAVIGATION</div>
+        <h2 class="section-title">SOLAR SYSTEM</h2>
+    </div>
+
+</div>
+
+<div class="planet-zone">
+
+    <div>
+
+        <div class="planet" id="planetVisual"></div>
+
+    </div>
+
+    <div class="planet-info">
+
+        <div class="eyebrow">TARGET BODY</div>
+
+        <h3 id="planetName">EARTH</h3>
+
+        <p id="planetDescription">
+            Our home planet and the only known world currently confirmed
+            to support life. Earth remains the reference point for humanity's
+            exploration of the solar system.
+        </p>
+
+        <div class="planet-selector">
+
+            <button class="planet-btn active"
+                    onclick="selectPlanet('Earth',this)">
+                EARTH
+            </button>
+
+            <button class="planet-btn"
+                    onclick="selectPlanet('Moon',this)">
+                MOON
+            </button>
+
+            <button class="planet-btn"
+                    onclick="selectPlanet('Mars',this)">
+                MARS
+            </button>
+
+            <button class="planet-btn"
+                    onclick="selectPlanet('Jupiter',this)">
+                JUPITER
+            </button>
+
+            <button class="planet-btn"
+                    onclick="selectPlanet('Saturn',this)">
+                SATURN
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- ======================================================
+     TELEMETRY
+======================================================= -->
+
+<section id="telemetry">
+
+<div class="section-header">
+
+    <div>
+        <div class="eyebrow">07 // SPACECRAFT SYSTEMS</div>
+        <h2 class="section-title">TELEMETRY</h2>
+        <p class="section-description">
+            Simulated spacecraft telemetry for the interface.
+        </p>
+    </div>
+
+</div>
+
+<div class="telemetry">
+
+<div class="telemetry-panel">
+
+    <div class="eyebrow">ORION // VEHICLE STATUS</div>
+
+    <div class="telemetry-row">
+        <span class="telemetry-label">POWER</span>
+        <div class="bar"><span style="width:88%"></span></div>
+        <span class="telemetry-value">88%</span>
+    </div>
+
+    <div class="telemetry-row">
+        <span class="telemetry-label">THERMAL</span>
+        <div class="bar"><span style="width:72%"></span></div>
+        <span class="telemetry-value">72%</span>
+    </div>
+
+    <div class="telemetry-row">
+        <span class="telemetry-label">COMM LINK</span>
+        <div class="bar"><span style="width:96%"></span></div>
+        <span class="telemetry-value">96%</span>
+    </div>
+
+    <div class="telemetry-row">
+        <span class="telemetry-label">PROPULSION</span>
+        <div class="bar"><span style="width:81%"></span></div>
+        <span class="telemetry-value">81%</span>
+    </div>
+
+</div>
+
+
+<div class="telemetry-panel">
+
+    <div class="eyebrow">DEEP SPACE NETWORK</div>
+
+    <div class="telemetry-row">
+        <span class="telemetry-label">GOLDSTONE</span>
+        <div class="bar"><span style="width:92%"></span></div>
+        <span class="telemetry-value">ONLINE</span>
+    </div>
+
+    <div class="telemetry-row">
+        <span class="telemetry-label">MADRID</span>
+        <div class="bar"><span style="width:87%"></span></div>
+        <span class="telemetry-value">ONLINE</span>
+    </div>
+
+    <div class="telemetry-row">
+        <span class="telemetry-label">CANBERRA</span>
+        <div class="bar"><span style="width:94%"></span></div>
+        <span class="telemetry-value">ONLINE</span>
+    </div>
+
+    <div class="telemetry-row">
+        <span class="telemetry-label">NETWORK</span>
+        <div class="bar"><span style="width:98%"></span></div>
+        <span class="telemetry-value">NOMINAL</span>
+    </div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ======================================================
+     GALLERY SLIDER
+======================================================= -->
+
+<section id="gallery">
+
+<div class="section-header">
+
+    <div>
+        <div class="eyebrow">08 // VISUAL ARCHIVE</div>
+        <h2 class="section-title">MISSION GALLERY</h2>
+    </div>
+
+</div>
+
+<div class="gallery">
+
+    <div class="gallery-main"
+         id="galleryMain"
+         style="background-image:url('https://images-assets.nasa.gov/image/iss069e001034/iss069e001034~large.jpg')">
+
+        <div class="gallery-caption">
+
+            <div class="eyebrow">IMAGE ARCHIVE</div>
+
+            <h3 id="galleryTitle">
+                EARTH FROM ORBIT
+            </h3>
+
+        </div>
+
+    </div>
+
+    <div class="gallery-thumbs">
+
+        <div class="thumb active"
+             onclick="gallerySelect(0)"
+             style="background-image:url('https://images-assets.nasa.gov/image/iss069e001034/iss069e001034~large.jpg')">
+        </div>
+
+        <div class="thumb"
+             onclick="gallerySelect(1)"
+             style="background-image:url('https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e001242/GSFC_20171208_Archive_e001242~large.jpg')">
+        </div>
+
+        <div class="thumb"
+             onclick="gallerySelect(2)"
+             style="background-image:url('https://images-assets.nasa.gov/image/PIA26469/PIA26469~large.jpg')">
+        </div>
+
+        <div class="thumb"
+             onclick="gallerySelect(3)"
+             style="background-image:url('https://images-assets.nasa.gov/image/PIA17046/PIA17046~large.jpg')">
+        </div>
+
+        <div class="thumb"
+             onclick="gallerySelect(4)"
+             style="background-image:url('https://images-assets.nasa.gov/image/AFRC2025-0149-0012/AFRC2025-0149-0012~large.jpg')">
+        </div>
+
+        <div class="thumb"
+             onclick="gallerySelect(5)"
+             style="background-image:url('https://images-assets.nasa.gov/image/PIA26014/PIA26014~large.jpg')">
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- ======================================================
+     CONTROL ROOM
+======================================================= -->
+
+<section>
+
+<div class="section-header">
+
+    <div>
+        <div class="eyebrow">09 // FLIGHT CONTROL</div>
+        <h2 class="section-title">CONTROL ROOM</h2>
+    </div>
+
+</div>
+
+<div class="dashboard">
+
+    <div class="dashboard-panel">
+
+        <div class="eyebrow">DEEP SPACE RADAR</div>
+
+        <div class="radar"></div>
+
+        <div style="text-align:center;font:9px var(--mono);color:var(--green)">
+            TRACKING 03 OBJECTS
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-panel">
+
+        <div class="eyebrow">MISSION NETWORK</div>
+
+        <div class="mini-list">
+
+            <div>
+                <span>ORION</span>
+                <span class="ok">NOMINAL</span>
+            </div>
+
+            <div>
+                <span>WEBB</span>
+                <span class="ok">ACTIVE</span>
+            </div>
+
+            <div>
+                <span>HUBBLE</span>
+                <span class="ok">ACTIVE</span>
+            </div>
+
+            <div>
+                <span>PERSEVERANCE</span>
+                <span class="ok">ACTIVE</span>
+            </div>
+
+            <div>
+                <span>VOYAGER</span>
+                <span class="ok">LINKED</span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="dashboard-panel">
+
+        <div class="eyebrow">SYSTEM LOG</div>
+
+        <div class="mini-list" id="systemLog">
+
+            <div>
+                <span>17:42:11</span>
+                <span class="ok">LINK OK</span>
+            </div>
+
+            <div>
+                <span>17:42:18</span>
+                <span class="ok">DATA RX</span>
+            </div>
+
+            <div>
+                <span>17:42:31</span>
+                <span class="ok">SYNC</span>
+            </div>
+
+            <div>
+                <span>17:42:44</span>
+                <span class="ok">NOMINAL</span>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+</main>
+
+
+<!-- ======================================================
+     MODAL
+======================================================= -->
+
+<div class="modal" id="missionModal">
+
+    <div class="modal-box">
+
+        <button class="modal-close"
+                onclick="closeMission()">
+            ×
+        </button>
+
+        <div class="eyebrow">MISSION DATABASE // DETAIL</div>
+
+        <h2 id="modalTitle">MISSION</h2>
+
+        <p id="modalDescription">
+            Mission information.
+        </p>
+
+        <div class="modal-stats">
+
+            <div class="modal-stat">
+                <small>MISSION TYPE</small>
+                <strong id="modalType">—</strong>
+            </div>
+
+            <div class="modal-stat">
+                <small>STATUS</small>
+                <strong id="modalStatus">—</strong>
+            </div>
+
+            <div class="modal-stat">
+                <small>TARGET</small>
+                <strong id="modalTarget">—</strong>
+            </div>
+
+        </div>
+
+        <br>
+
+        <button class="btn"
+                onclick="closeMission()">
+            RETURN TO CONTROL
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- ======================================================
+     FOOTER
+======================================================= -->
+
+<footer>
+
+<div class="footer-grid">
+
+    <div>
+
+        <div class="footer-title">
+            MISSION CONTROL
+        </div>
+
+        <p>
+            An educational NASA-inspired interactive space dashboard
+            created as a standalone HTML demonstration.
+        </p>
+
+    </div>
+
+    <div>
+
+        <div class="eyebrow">NAVIGATION</div>
+
+        <p><a href="#missions">Mission Database</a></p>
+        <p><a href="#events">Space Events</a></p>
+        <p><a href="#timeline">Timeline</a></p>
+
+    </div>
+
+    <div>
+
+        <div class="eyebrow">SYSTEMS</div>
+
+        <p><a href="#telemetry">Telemetry</a></p>
+        <p><a href="#dashboard">Control Room</a></p>
+        <p><a href="#gallery">Gallery</a></p>
+
+    </div>
+
+    <div>
+
+        <div class="eyebrow">EXPLORATION</div>
+
+        <p><a href="#solar">Solar System</a></p>
+        <p><a href="#missions">Missions</a></p>
+        <p><a href="#events">Events</a></p>
+
+    </div>
+
+</div>
+
+<div class="copyright">
+
+    MISSION CONTROL SYSTEM // EDUCATIONAL DEMONSTRATION //
+    NASA-INSPIRED UI // NOT AN OFFICIAL NASA WEBSITE
+
+</div>
+
+</footer>
+
+
+<script>
+
+/* =========================================================
+   CLOCK
+========================================================= */
+
+function updateClock(){
+
+    const now = new Date();
+
+    const time =
+        now.toUTCString()
+        .split(" ")[4];
+
+    document.getElementById("clock").textContent =
+        time + " UTC";
+}
+
+setInterval(updateClock,1000);
+updateClock();
+
+
+/* =========================================================
+   HERO SLIDER
+========================================================= */
+
+let heroIndex = 0;
+
+const heroSlides =
+    document.querySelectorAll(".hero-slide");
+
+const heroDots =
+    document.querySelectorAll(".slider-dot");
+
+function heroGo(index){
+
+    heroIndex = index;
+
+    heroSlides.forEach((slide,i)=>{
+        slide.classList.toggle(
+            "active",
+            i === index
+        );
+    });
+
+    heroDots.forEach((dot,i)=>{
+        dot.classList.toggle(
+            "active",
+            i === index
+        );
+    });
+
+    document.getElementById("heroCounter")
+        .textContent =
+        String(index+1).padStart(2,"0");
+}
+
+setInterval(()=>{
+
+    heroIndex++;
+
+    if(heroIndex >= heroSlides.length){
+        heroIndex = 0;
+    }
+
+    heroGo(heroIndex);
+
+},7000);
+
+
+/* =========================================================
+   COUNTDOWN
+========================================================= */
+
+/*
+   CHANGE THIS DATE FOR YOUR OWN COUNTDOWN.
+*/
+
+const targetDate =
+    new Date("2027-01-01T00:00:00Z").getTime();
+
+function updateCountdown(){
+
+    const now = Date.now();
+
+    let distance =
+        targetDate - now;
+
+    if(distance < 0){
+        distance = 0;
+    }
+
+    const days =
+        Math.floor(
+            distance /
+            (1000*60*60*24)
+        );
+
+    const hours =
+        Math.floor(
+            (distance %
+            (1000*60*60*24)) /
+            (1000*60*60)
+        );
+
+    const minutes =
+        Math.floor(
+            (distance %
+            (1000*60*60)) /
+            (1000*60)
+        );
+
+    const seconds =
+        Math.floor(
+            (distance %
+            (1000*60)) /
+            1000
+        );
+
+    document.getElementById("days")
+        .textContent =
+        String(days).padStart(3,"0");
+
+    document.getElementById("hours")
+        .textContent =
+        String(hours).padStart(2,"0");
+
+    document.getElementById("minutes")
+        .textContent =
+        String(minutes).padStart(2,"0");
+
+    document.getElementById("seconds")
+        .textContent =
+        String(seconds).padStart(2,"0");
+}
+
+setInterval(updateCountdown,1000);
+updateCountdown();
+
+
+/* =========================================================
+   MISSION DATABASE
+========================================================= */
+
+const missions = {
+
+    "Artemis I":{
+        type:"KODAIKANAL",
+        status:"COMPLETED",
+        target:"MOON",
+        description:
+        "Artemis I was an uncrewed test flight designed to demonstrate the integrated performance of NASA's Space Launch System and Orion spacecraft."
+    },
+
+    "Artemis II":{
+        type:"CREWED LUNAR",
+        status:"MISSION PROGRAM",
+        target:"MOON",
+        description:
+        "Artemis II is the first crewed Artemis flight and a key step toward future human exploration of the Moon and Mars."
+    },
+
+    "Artemis III":{
+        type:"LUNAR SURFACE",
+        status:"FUTURE",
+        target:"MOON",
+        description:
+        "Artemis III is part of NASA's evolving lunar exploration architecture and is intended to advance human exploration around the lunar South Pole."
+    },
+
+    "Artemis IV":{
+        type:"CREWED SURFACE",
+        status:"FUTURE",
+        target:"MOON",
+        description:
+        "Artemis IV is planned as a future crewed lunar mission supporting continued exploration and development of the lunar environment."
+    },
+
+    "James Webb Space Telescope":{
+        type:"ASTROPHYSICS",
+        status:"ACTIVE",
+        target:"DEEP UNIVERSE",
+        description:
+        "Webb is an infrared space telescope studying galaxies, stars, planets and the evolution of the universe."
+    },
+
+    "Hubble Space Telescope":{
+        type:"ASTROPHYSICS",
+        status:"ACTIVE",
+        target:"EARTH ORBIT",
+        description:
+        "Hubble is a long-running space observatory whose observations have transformed astronomy."
+    },
+
+    "Mars Perseverance":{
+        type:"PLANETARY SCIENCE",
+        status:"ACTIVE",
+        target:"MARS",
+        description:
+        "Perseverance explores Jezero Crater, investigates ancient environments and collects rock and regolith samples."
+    },
+
+    "Curiosity":{
+        type:"PLANETARY SCIENCE",
+        status:"ACTIVE",
+        target:"MARS",
+        description:
+        "Curiosity is a mobile laboratory investigating the geology and ancient habitability of Mars."
+    },
+
+    "Voyager":{
+        type:"DEEP SPACE",
+        status:"INTERSTELLAR",
+        target:"OUTER SOLAR SYSTEM",
+        description:
+        "Voyager 1 and Voyager 2 are exploring regions beyond the heliosphere and continue humanity's pioneering deep-space journey."
+    },
+
+    "Europa Clipper":{
+        type:"PLANETARY SCIENCE",
+        status:"ACTIVE",
+        target:"EUROPA",
+        description:
+        "Europa Clipper is designed to study Jupiter's moon Europa and investigate whether conditions there could support life."
+    },
+
+    "OSIRIS-APEX":{
+        type:"ASTEROID SCIENCE",
+        status:"ACTIVE",
+        target:"APOPHIS",
+        description:
+        "OSIRIS-APEX is studying the physical changes to asteroid Apophis following its close encounter with Earth."
+    },
+
+    "Parker Solar Probe":{
+        type:"HELIOPHYSICS",
+        status:"ACTIVE",
+        target:"SUN",
+        description:
+        "Parker Solar Probe investigates the Sun's outer atmosphere and the solar wind."
+    }
+
+};
+
+function openMission(name){
+
+    const data =
+        missions[name] ||
+        {
+            type:"SPACE MISSION",
+            status:"ACTIVE",
+            target:"DEEP SPACE",
+            description:
+            "Mission data available through the demonstration database."
+        };
+
+    document.getElementById("modalTitle")
+        .textContent = name;
+
+    document.getElementById("modalDescription")
+        .textContent = data.description;
+
+    document.getElementById("modalType")
+        .textContent = data.type;
+
+    document.getElementById("modalStatus")
+        .textContent = data.status;
+
+    document.getElementById("modalTarget")
+        .textContent = data.target;
+
+    document.getElementById("missionModal")
+        .classList.add("show");
+
+}
+
+function closeMission(){
+
+    document.getElementById("missionModal")
+        .classList.remove("show");
+
+}
+
+
+/* =========================================================
+   CLOSE MODAL WITH ESC
+========================================================= */
+
+document.addEventListener("keydown",(event)=>{
+
+    if(event.key === "Escape"){
+        closeMission();
+    }
+
+});
+
+
+/* =========================================================
+   MISSION FILTER
+========================================================= */
+
+function filterMissions(category,button){
+
+    document
+        .querySelectorAll(".filter")
+        .forEach(btn=>{
+            btn.classList.remove("active");
+        });
+
+    button.classList.add("active");
+
+    document
+        .querySelectorAll(".mission-card")
+        .forEach(card=>{
+
+            const matches =
+                category === "all" ||
+                card.dataset.category === category;
+
+            card.style.display =
+                matches ? "" : "none";
+
+        });
+
+}
+
+
+/* =========================================================
+   MISSION SEARCH
+========================================================= */
+
+function searchMissions(){
+
+    const query =
+        document
+        .getElementById("missionSearch")
+        .value
+        .toLowerCase();
+
+    document
+        .querySelectorAll(".mission-card")
+        .forEach(card=>{
+
+            const text =
+                card.textContent.toLowerCase();
+
+            card.style.display =
+                text.includes(query)
+                ? ""
+                : "none";
+
+        });
+
+}
+
+
+/* =========================================================
+   MISSION SLIDER
+========================================================= */
+
+let missionPosition = 0;
+
+function moveMissionSlider(direction){
+
+    const track =
+        document.getElementById("missionTrack");
+
+    const cards =
+        track.querySelectorAll(".mission-card");
+
+    if(!cards.length) return;
+
+    const cardWidth =
+        cards[0].offsetWidth + 16;
+
+    const visible =
+        window.innerWidth > 1000
+        ? 4
+        : window.innerWidth > 650
+        ? 2
+        : 1;
+
+    const max =
+        Math.max(
+            0,
+            cards.length - visible
+        );
+
+    missionPosition += direction;
+
+    if(missionPosition < 0)
+        missionPosition = 0;
+
+    if(missionPosition > max)
+        missionPosition = max;
+
+    track.style.transform =
+        `translateX(-${missionPosition * cardWidth}px)`;
+
+}
+
+
+/* =========================================================
+   PLANET SELECTOR
+========================================================= */
+
+const planetData = {
+
+    Earth:{
+        description:
+        "Our home planet and the only known world currently confirmed to support life."
+    },
+
+    Moon:{
+        description:
+        "Earth's natural satellite and a central destination for the Artemis exploration program."
+    },
+
+    Mars:{
+        description:
+        "A cold desert world that has been explored by orbiters, landers and rovers."
+    },
+
+    Jupiter:{
+        description:
+        "The largest planet in our solar system and home to the scientifically important moon Europa."
+    },
+
+    Saturn:{
+        description:
+        "A giant planet famous for its spectacular ring system and diverse collection of moons."
+    }
+
+};
+
+function selectPlanet(name,button){
+
+    document
+        .querySelectorAll(".planet-btn")
+        .forEach(btn=>{
+            btn.classList.remove("active");
+        });
+
+    button.classList.add("active");
+
+    document.getElementById("planetName")
+        .textContent = name.toUpperCase();
+
+    document.getElementById("planetDescription")
+        .textContent =
+        planetData[name].description;
+
+    const planet =
+        document.getElementById("planetVisual");
+
+    const styles = {
+
+        Earth:
+        "radial-gradient(circle at 35% 30%,#82cfff,#2672c4 25%,#102f62 55%,#030b19 75%)",
+
+        Moon:
+        "radial-gradient(circle at 35% 30%,#eee,#999 30%,#555 60%,#111 80%)",
+
+        Mars:
+        "radial-gradient(circle at 35% 30%,#ffb071,#b84826 35%,#5a1c13 65%,#130504 80%)",
+
+        Jupiter:
+        "radial-gradient(ellipse at 50% 30%,#e8c9a5,#a87858 20%,#d8b78c 35%,#6c4535 50%,#281812 80%)",
+
+        Saturn:
+        "radial-gradient(circle at 35% 30%,#f4d9a5,#bd945d 40%,#5d3e28 75%,#120b06 90%)"
+
+    };
+
+    planet.style.background =
+        styles[name];
+
+}
+
+
+/* =========================================================
+   GALLERY
+========================================================= */
+
+const galleryData = [
+
+    {
+        image:
+        "https://images-assets.nasa.gov/image/iss069e001034/iss069e001034~large.jpg",
+        title:"EARTH FROM ORBIT"
+    },
+
+    {
+        image:
+        "https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e001242/GSFC_20171208_Archive_e001242~large.jpg",
+        title:"JAMES WEBB SPACE TELESCOPE"
+    },
+
+    {
+        image:
+        "https://images-assets.nasa.gov/image/PIA26469/PIA26469~large.jpg",
+        title:"MARS PERSEVERANCE"
+    },
+
+    {
+        image:
+        "https://images-assets.nasa.gov/image/PIA17046/PIA17046~large.jpg",
+        title:"VOYAGER DEEP SPACE"
+    },
+
+    {
+        image:
+        "https://images-assets.nasa.gov/image/AFRC2025-0149-0012/AFRC2025-0149-0012~large.jpg",
+        title:"ARTEMIS EXPLORATION"
+    },
+
+    {
+        image:
+        "https://images-assets.nasa.gov/image/PIA26014/PIA26014~large.jpg",
+        title:"EUROPA CLIPPER"
+    }
+
+];
+
+function gallerySelect(index){
+
+    const item =
+        galleryData[index];
+
+    document.getElementById("galleryMain")
+        .style.backgroundImage =
+        `url('${item.image}')`;
+
+    document.getElementById("galleryTitle")
+        .textContent =
+        item.title;
+
+    document
+        .querySelectorAll(".thumb")
+        .forEach((thumb,i)=>{
+            thumb.classList.toggle(
+                "active",
+                i === index
+            );
+        });
+
+}
+
+
+/* =========================================================
+   SYSTEM LOG ANIMATION
+========================================================= */
+
+const logMessages = [
+
+    "DATA RX",
+    "TELEMETRY",
+    "LINK CHECK",
+    "NAV UPDATE",
+    "PACKET RX",
+    "SYSTEM SYNC",
+    "ORBIT UPDATE",
+    "TRACKING",
+    "NOMINAL"
+];
+
+setInterval(()=>{
+
+    const log =
+        document.getElementById("systemLog");
+
+    const now =
+        new Date()
+        .toISOString()
+        .substring(11,19);
+
+    const message =
+        logMessages[
+            Math.floor(
+                Math.random() *
+                logMessages.length
+            )
+        ];
+
+    const row =
+        document.createElement("div");
+
+    row.innerHTML =
+        `<span>${now}</span>
+         <span class="ok">${message}</span>`;
+
+    log.prepend(row);
+
+    if(log.children.length > 7){
+        log.removeChild(
+            log.lastElementChild
+        );
+    }
+
+},3000);
+
+
+/* =========================================================
+   SIMULATED TELEMETRY
+========================================================= */
+
+setInterval(()=>{
+
+    const data =
+        (7.5 +
+        Math.random()*.8)
+        .toFixed(2);
+
+    document.getElementById("data")
+        .textContent = data;
+
+},2000);
+
+
+/* =========================================================
+   SMOOTH SCROLL
+========================================================= */
+
+function scrollToSection(id){
+
+    const element =
+        document.getElementById(id);
+
+    if(element){
+        element.scrollIntoView({
+            behavior:"smooth"
+        });
+    }
+
+}
+
+
+/* =========================================================
+   KEYBOARD HERO NAVIGATION
+========================================================= */
+
+document.addEventListener("keydown",(event)=>{
+
+    if(event.key === "ArrowRight"){
+
+        heroIndex++;
+
+        if(heroIndex >= heroSlides.length)
+            heroIndex = 0;
+
+        heroGo(heroIndex);
+    }
+
+    if(event.key === "ArrowLeft"){
+
+        heroIndex--;
+
+        if(heroIndex < 0)
+            heroIndex = heroSlides.length - 1;
+
+        heroGo(heroIndex);
+    }
+
+});
+
+
+/* =========================================================
+   AUTO GALLERY
+========================================================= */
+
+let galleryIndex = 0;
+
+setInterval(()=>{
+
+    galleryIndex++;
+
+    if(galleryIndex >= galleryData.length)
+        galleryIndex = 0;
+
+    gallerySelect(galleryIndex);
+
+},8000);
+
+
+/* =========================================================
+   INITIALIZATION
+========================================================= */
+
+console.log(
+    "%c MISSION CONTROL ONLINE ",
+    "background:#00d9ff;color:#001018;font-weight:bold;padding:8px"
+);
+
+console.log(
+    "Deep Space Operations Interface initialized."
+);
+
+</script>
+
+</body>
+</html>
+```
